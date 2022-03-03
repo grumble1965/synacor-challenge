@@ -25,6 +25,11 @@ def main():
     # pc, list_end = 800, 900
     pc = 0
 
+    # dump_program(memory, 800, 1000)
+    run_machine(memory, pc, registers, stack)
+
+
+def run_machine(memory, pc, registers, stack):
     while True:
         opc = opcode.dispatch(pc, memory)
         npc, registers, stack, memory, continue_flag = opc.execute(pc, registers, stack, memory)
@@ -39,55 +44,14 @@ def main():
             break
         pc = npc
 
-        # opc = opcode.dispatch(pc, memory)
-        # npc, str1, str2 = opc.list(pc, memory)
-        # print(f"{pc:5}: {str1}  ; {str2}")
-        #
-        # pc = npc
-        # if pc > list_end:
-        #     break
 
-
-        #
-        # opcode, pc = memory[pc], pc + 1
-        # if opcode == 0:
-        #     # halt: 0
-        #     #   stop execution and terminate the program
-        #     break
-        # elif opcode == 1:
-        #     # set: 1 a b
-        #     #   set register <a> to the value of <b>
-        #     a, pc = interpret(memory[pc], registers), pc + 1
-        #     b, pc = interpret(memory[pc], registers), pc + 1
-        #     registers[a] = b
-        # elif opcode == 6:
-        #     # jmp: 6 a
-        #     #   jump to <a>
-        #     a, pc = interpret(memory[pc], registers), pc + 1
-        #     pc = a
-        # elif opcode == 7:
-        #     # jt: 7 a b
-        #     #   if <a> is nonzero, jump to <b>
-        #     a, pc = interpret(memory[pc], registers), pc + 1
-        #     b, pc = interpret(memory[pc], registers), pc + 1
-        #     pc = b if a != 0 else pc
-        # elif opcode == 8:
-        #     # jf: 8 a b
-        #     #   if <a> is zero, jump to <b>
-        #     a, pc = interpret(memory[pc], registers), pc + 1
-        #     b, pc = interpret(memory[pc], registers), pc + 1
-        #     pc = b if a == 0 else pc
-        # elif opcode == 19:
-        #     # out: 19 a
-        #     #   write the character represented by ascii code <a> to the terminal
-        #     a, pc = interpret(memory[pc], registers), pc + 1
-        #     print(chr(a), end='')
-        # elif opcode == 21:
-        #     # noop: 21
-        #     #   no operation
-        #     pass
-        # else:
-        #     print(f"Unhandled opcode {opcode}")
+def dump_program(memory, start, end):
+    pc = start
+    while pc < end:
+        opc = opcode.dispatch(pc, memory)
+        npc, str1, str2 = opc.list(pc, memory)
+        print(f"{pc:5}: {str1}  ; {str2}")
+        pc = npc
 
 
 if __name__ == '__main__':
