@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import deque
+from inout import input_word, output_word
 
 RegType = list[int]
 MemType = dict[int, int]
@@ -346,8 +347,8 @@ class ReturnOpcode(Opcode):
 class OutOpcode(Opcode):
     def execute(self, pc: int, registers: RegType, stack: StackType, memory: MemType) \
             -> (int, RegType, StackType, MemType, bool):
-        a = imm_interpret(memory[pc + 1])
-        print(chr(a), end='')
+        a = read_interpret(memory[pc + 1], registers)
+        output_word(a)
         return pc + 2, registers, stack, memory, True
 
     def list(self, pc, memory: MemType) -> (int, str, str):
@@ -360,7 +361,12 @@ class InOpcode(Opcode):
     def execute(self, pc: int, registers: RegType, stack: StackType, memory: MemType) \
             -> (int, RegType, StackType, MemType, bool):
         a = memory[pc + 1]
-        print(f"IN doesn't work at pc {pc}")
+        res = input_word() % 32768
+        if 32768 <= a <= 32775:
+            registers[a - 32768] = res
+        else:
+            memory[a] = res
+
         return pc + 2, registers, stack, memory, False
 
     def list(self, pc, memory: MemType) -> (int, str, str):
