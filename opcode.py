@@ -69,10 +69,7 @@ class PopOpcode(Opcode):
             val, halt = 0, False
         else:
             val, halt = stack.pop(), True
-        if 32768 <= a <= 32775:
-            registers[a - 32768] = val
-        else:
-            memory[a] = val
+        store_value(a, val, memory, registers)
         return pc + 2, registers, stack, memory, halt
 
     def list(self, pc, memory: MemType) -> (int, str, str):
@@ -88,10 +85,7 @@ class EqOpcode(Opcode):
         b = read_interpret(memory[pc + 2], registers)
         c = read_interpret(memory[pc + 3], registers)
         res = 1 if b == c else 0
-        if 32768 <= a <= 32775:
-            registers[a - 32768] = res
-        else:
-            memory[a] = res
+        store_value(a, res, memory, registers)
         return pc + 4, registers, stack, memory, True
 
     def list(self, pc, memory: MemType) -> (int, str, str):
@@ -108,10 +102,7 @@ class GtOpcode(Opcode):
         b = read_interpret(memory[pc + 2], registers)
         c = read_interpret(memory[pc + 3], registers)
         res = 1 if b > c else 0
-        if 32768 <= a <= 32775:
-            registers[a - 32768] = res
-        else:
-            memory[a] = res
+        store_value(a, res, memory, registers)
         return pc + 4, registers, stack, memory, True
 
     def list(self, pc, memory: MemType) -> (int, str, str):
@@ -166,10 +157,7 @@ class AddOpcode(Opcode):
         b = read_interpret(memory[pc + 2], registers)
         c = read_interpret(memory[pc + 3], registers)
         res = (b + c) % 32768
-        if 32768 <= a <= 32775:
-            registers[a - 32768] = res
-        else:
-            memory[a] = res
+        store_value(a, res, memory, registers)
         return pc + 4, registers, stack, memory, True
 
     def list(self, pc, memory: MemType) -> (int, str, str):
@@ -186,10 +174,7 @@ class MultOpcode(Opcode):
         b = read_interpret(memory[pc + 2], registers)
         c = read_interpret(memory[pc + 3], registers)
         res = (b * c) % 32768
-        if 32768 <= a <= 32775:
-            registers[a - 32768] = res
-        else:
-            memory[a] = res
+        store_value(a, res, memory, registers)
         return pc + 4, registers, stack, memory, True
 
     def list(self, pc, memory: MemType) -> (int, str, str):
@@ -206,10 +191,7 @@ class ModOpcode(Opcode):
         b = read_interpret(memory[pc + 2], registers)
         c = read_interpret(memory[pc + 3], registers)
         res = (b % c) % 32768
-        if 32768 <= a <= 32775:
-            registers[a - 32768] = res
-        else:
-            memory[a] = res
+        store_value(a, res, memory, registers)
         return pc + 4, registers, stack, memory, True
 
     def list(self, pc, memory: MemType) -> (int, str, str):
@@ -226,10 +208,7 @@ class AndOpcode(Opcode):
         b = read_interpret(memory[pc + 2], registers)
         c = read_interpret(memory[pc + 3], registers)
         res = (b & c) % 32768
-        if 32768 <= a <= 32775:
-            registers[a - 32768] = res
-        else:
-            memory[a] = res
+        store_value(a, res, memory, registers)
         return pc + 4, registers, stack, memory, True
 
     def list(self, pc, memory: MemType) -> (int, str, str):
@@ -246,10 +225,7 @@ class OrOpcode(Opcode):
         b = read_interpret(memory[pc + 2], registers)
         c = read_interpret(memory[pc + 3], registers)
         res = (b | c) % 32768
-        if 32768 <= a <= 32775:
-            registers[a - 32768] = res
-        else:
-            memory[a] = res
+        store_value(a, res, memory, registers)
         return pc + 4, registers, stack, memory, True
 
     def list(self, pc, memory: MemType) -> (int, str, str):
@@ -264,10 +240,7 @@ class NotOpcode(Opcode):
         a = imm_interpret(memory[pc + 1])
         b = read_interpret(memory[pc + 2], registers)
         res = (~b) % 32768
-        if 32768 <= a <= 32775:
-            registers[a - 32768] = res
-        else:
-            memory[a] = res
+        store_value(a, res, memory, registers)
         return pc + 3, registers, stack, memory, True
 
     def list(self, pc, memory: MemType) -> (int, str, str):
@@ -283,10 +256,7 @@ class ReadMemOpcode(Opcode):
         a = imm_interpret(memory[pc + 1])
         b = read_interpret(memory[pc + 2], registers)
         res = memory[b] % 32768
-        if 32768 <= a <= 32775:
-            registers[a - 32768] = res
-        else:
-            memory[a] = res
+        store_value(a, res, memory, registers)
         # print(f"RMEM {a} {b} gives {res} at pc = {pc}")
         return pc + 3, registers, stack, memory, True
 
@@ -304,10 +274,7 @@ class WriteMemOpcode(Opcode):
         b = read_interpret(memory[pc + 2], registers)
         res = b % 32768
         #print(f"WMEM at pc = {pc}")
-        if 32768 <= a <= 32775:
-            registers[a - 32768] = res
-        else:
-            memory[a] = res
+        store_value(a, res, memory, registers)
         return pc + 3, registers, stack, memory, True
 
     def list(self, pc, memory: MemType) -> (int, str, str):
@@ -362,10 +329,7 @@ class InOpcode(Opcode):
             -> (int, RegType, StackType, MemType, bool):
         a = memory[pc + 1]
         res = input_word() % 32768
-        if 32768 <= a <= 32775:
-            registers[a - 32768] = res
-        else:
-            memory[a] = res
+        self.store_value(a, res, memory, registers)
 
         return pc + 2, registers, stack, memory, False
 
@@ -378,7 +342,7 @@ class InOpcode(Opcode):
 class NoopOpcode(Opcode):
     def execute(self, pc: int, registers: RegType, stack: StackType, memory: MemType) \
             -> (int, RegType, StackType, MemType, bool):
-        return pc + 1, registers, memory, True
+        return pc + 1, registers, stack, memory, True
 
     def list(self, pc, memory: MemType) -> (int, str, str):
         return pc + 1, "21".ljust(Opcode._list_field_1_width), "noop".ljust(Opcode._list_field_2_width)
@@ -416,7 +380,7 @@ _table = {
     18: ReturnOpcode(),
     19: OutOpcode(),
     20: InOpcode(),
-    21: HaltOpcode()
+    21: NoopOpcode()
 }
 _undefined_opcode = UndefinedOpcode()
 
@@ -465,6 +429,13 @@ def list_interpret(num):
         return f"R{num - 32768}"
     else:
         print(f"list_interpret: unhandled number {num}")
+
+
+def store_value(dest, val, memory, registers):
+    if 32768 <= dest <= 32775:
+        registers[dest - 32768] = val
+    else:
+        memory[dest] = val
 
 
 def main():

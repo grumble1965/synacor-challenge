@@ -25,7 +25,7 @@ def main():
     # pc, list_end = 800, 900
     pc = 0
 
-    # dump_program(memory, 320)
+    # dump_program(memory, 0)
     run_machine(memory, pc, registers, stack)
 
 

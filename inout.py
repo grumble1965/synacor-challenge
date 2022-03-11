@@ -9,8 +9,7 @@ def input_word():
         while _input_buffer == '':
             _input_buffer = input('> ')
         _input_buffer += '\n'
-    ch = _input_buffer[0]
-    _input_buffer = _input_buffer[1:]
+    ch, _input_buffer = _input_buffer[0], _input_buffer[1:]
     return ord(ch) % 32768
 
 
